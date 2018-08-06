@@ -16,4 +16,7 @@ Special keys: r=reload, s=skip to next
 Use query string to adjust video size, padding, font size on the fly:
 media-kiosk.html?w=960&p=40&f=20
 
+Public domain video samples courtesy of the Prelinger Archives: 
+https://archive.org/details/Televisi1960
+
 Enjoy! -Nick
