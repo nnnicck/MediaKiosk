@@ -19,4 +19,7 @@ media-kiosk.html?w=960&p=40&f=20
 Public domain video samples courtesy of the Prelinger Archives: 
 https://archive.org/details/Televisi1960
 
+Don't forget to adjust Chrome's new video autoplay policy:
+chrome://flags/#autoplay-policy - set to "No user gesture is required"
+
 Enjoy! -Nick
