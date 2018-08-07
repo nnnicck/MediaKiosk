@@ -17,6 +17,9 @@ Special keys: r=reload, s=skip to next
 Use query string to adjust video size, padding, font size on the fly
 media-kiosk.html?w=960&p=40&f=20
 
+Don't forget to adjust Chrome's new video autoplay policy:
+chrome://flags/#autoplay-policy - set to "No user gesture is required"
+
 Enjoy! -Nick
 
 -->
@@ -84,7 +87,7 @@ color:#c00;
 var debug = 0; // send debugging messages to the debugMsgs span?
 
 // how many seconds should we delay between videos?
-var delayBetweenVids = 1;
+var delayBetweenVids = 0;
 
 // set padding and video size for display
 var padding = 30;
@@ -94,22 +97,30 @@ var fontSize = 20;
 
 // enter your video files here - relative links
 var vidFile = [
-	"FIRSTVID.MP4", 
-	"SECONDVID.MP4", 
-	"THIRDVID.MP4",
-	"FOURTHVID.MP4",
-	"FIFTHVID.MP4"];
+	"sample-videos/dristan.mp4", 
+	"sample-videos/goodyear.mp4", 
+	"sample-videos/galleries.mp4", 
+	"sample-videos/cowboys.mp4", 
+	"sample-videos/karate.mp4", 
+	"sample-videos/soap.mp4", 
+	"sample-videos/plane.mp4",
+	"sample-videos/alkaseltzer.mp4",
+	"sample-videos/pigeon.mp4"];
 
 // enter corresponding titles for the videos
 var vidTitle = [
-	"FIRSTTITLE", 
-	"SECONDTITLE", 
-	"THIRDTITLE",
-	"FOURTHTITLE",
-	"FIFTHTITLE"];
+	"Dristan", 
+	"Goodyear", 
+	"Art Season",
+	"Cowboys",
+	"Karate",
+	"Soap",
+	"What Plane?",
+	"Pie Eating Contest",
+	"Pigeon Copter"];
 	
-// start playing videos 0, 4, 2, 3, and 1 when the page loads
-var vidPlaylist = [0, 4, 2, 3, 1];
+// start playing videos 0, 1, 5, 4, and 8 when the page loads
+var vidPlaylist = [0, 1, 5, 4, 8];
 
 // misc variables
 var myVideo = document.getElementById("video1"); 
