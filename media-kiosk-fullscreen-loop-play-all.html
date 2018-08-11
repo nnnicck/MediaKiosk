@@ -1,0 +1,303 @@
+<!DOCTYPE html> 
+<html> <head><title>Media Kiosk</title>
+
+<!--
+
+Written for the Multimedia Jukebox with Luke J. and Peter K. in 2018
+
+Designed to listen for keystrokes and play or queue up MP4 video files
+
+Use a raspberry pi or arduino as a keyboard emulator to add 
+custom buttons or other controls
+
+Type 0-9 to queue up videos from the vidFile and vidTitle arrays
+
+Special keys: r=reload, s=skip to next
+
+Use query string to adjust video size, padding, font size on the fly
+media-kiosk.html?w=960&p=40&f=20
+
+Don't forget to adjust Chrome's new video autoplay policy:
+chrome://flags/#autoplay-policy - set to "No user gesture is required"
+
+
+This version plays through in random order continuously
+
+
+
+
+
+
+Enjoy! -Nick
+
+-->
+
+<style>
+body {
+background-color:#000; /* infuriating hack - #000 causes weird offset in full screen */
+color:#ccc;
+overflow:hidden;
+font-family:Helvetica;
+font-size:20px; // js controlled
+margin:0;
+padding:0;
+}
+
+
+#videoPlayer {
+position:absolute;
+display:block;
+top:0px;
+left:0px;
+text-align:center;
+padding:0px; // js controlled
+margin:0;
+/*border:1px solid #0f0;*/
+}	
+
+#vidList {
+position:absolute;
+top:0px;
+left:0px; // js controlled by video width + 2x padding
+margin:0;
+padding:0px; // js controlled
+border:0px solid #f00;
+line-height:1.4em;
+display:none;
+}
+
+video {
+/*filter: grayscale(100%);*/
+margin-bottom:10px;
+}
+
+#debugMsgs {
+color:#c00;
+}
+
+</style>
+
+</head>
+
+<body onload="ConfigureMedia()">
+
+<div id="videoPlayer">
+	<video id="video" width="1080">
+		<source type="video/mp4">
+			Error: This browser does not support HTML5 video.
+	</video><br>
+	<span id="vidTitle"></span><br>
+	<span id="debugMsgs"></span>
+</div>
+
+<div id="vidList"></div>
+
+<script language="javascript" type="text/javascript"> 
+
+var debug = 0; // send debugging messages to the debugMsgs span?
+
+// how many seconds should we delay between videos?
+var delayBetweenVids = 0;
+
+// set padding and video size for display
+var padding = 0;
+var videoSize = 960; 
+var fontSize = 1;
+var loopVideo = 1;
+var playAll = 1;
+// can be overridden in the browser with ?w=1080&p=50&f=40 or the like
+
+// enter your video files here - relative links
+var vidFile = [
+	"sample-videos/dristan.mp4", 
+	"sample-videos/goodyear.mp4", 
+	"sample-videos/galleries.mp4", 
+	"sample-videos/cowboys.mp4", 
+	"sample-videos/karate.mp4", 
+	"sample-videos/soap.mp4", 
+	"sample-videos/plane.mp4",
+	"sample-videos/alkaseltzer.mp4",
+	"sample-videos/pigeon.mp4"];
+
+// enter corresponding titles for the videos
+var vidTitle = [
+	"Dristan", 
+	"Goodyear", 
+	"Art Season",
+	"Cowboys",
+	"Karate",
+	"Soap",
+	"What Plane?",
+	"Pie Eating Contest",
+	"Pigeon Copter"];
+	
+// start playing videos 0, 1, 5, 4, and 8 when the page loads
+var vidPlaylist = [8, 6]; // is overwritten when playAll = 1;
+
+// misc variables
+var myVideo = document.getElementById("video"); 
+var myTitle = document.getElementById("vidTitle"); 
+var debugMsgs = document.getElementById("debugMsgs"); 
+var vidList = document.getElementById("vidList"); 
+var loadNextTimer = 0;
+var nextUp = -1;
+
+debugMsgs.innerHTML = '';
+
+// When a video loads, start playing and also set a timer to play the next one
+myVideo.oncanplay = function() {
+    //alert("Can start playing " + vidFile[nextUp]);
+    UpdateStatus("r" + nextUp);
+    var timeDelay = (delayBetweenVids + myVideo.duration) * 1000;
+    
+    clearTimeout(loadNextTimer);
+    loadNextTimer = setTimeout("LoadNextUp()", timeDelay);
+    
+    myVideo.play();
+};
+
+
+function ConfigureMedia() {
+
+	// get optional video size and padding values from the query string
+	var q = location.search;
+	var res = q.match(/[wpfd]\=(\d+)/gi);
+	if(res) {
+		for(var i=0; i<res.length; i++) {
+			var value = parseInt(res[i].substr(2)); // alert("'" + value + "'");
+			if(res[i].indexOf("w") == 0) { videoSize = value; }
+			if(res[i].indexOf("p") == 0) { padding = value; }
+			if(res[i].indexOf("f") == 0) { fontSize = value; }
+			if(res[i].indexOf("d") == 0) { debug = value; }
+		}
+	}
+
+	myVideo.width = videoSize;
+	
+	document.body.style.fontSize = fontSize + "px";
+
+	document.getElementById("videoPlayer").style.padding = padding + "px";
+	document.getElementById("vidList").style.padding = padding + "px";
+	document.getElementById("vidList").style.left = (videoSize + (2 * padding)) + "px";
+	
+	if(padding == 0) {
+		document.getElementById("videoPlayer").style.width = window.innerWidth + "px";
+		//document.getElementById("video").style.width = window.innerWidth + "px";
+		myVideo.style.width = window.innerWidth + "px";
+		
+		fontSize = 1; // at zero, css fail for no good reason
+	}
+	
+	// hide vidList if we're in 0 font mode
+	if(fontSize == 0) {
+		document.getElementById("vidList").style.display = "none";
+	
+	} else {
+		document.getElementById("vidList").style.display = "block";
+	
+	}
+	
+	
+
+	LoadNextUp();
+}
+
+
+
+// Load the next video on the list or wait for user input
+function LoadNextUp() {
+	//alert(vidPlaylist.length);
+	//alert('next');
+	
+	
+	if(loopVideo) {
+		// add the next video to the end of the line
+		if(nextUp >= 0) {
+			vidPlaylist.push(nextUp);
+		}
+	}
+	
+	if(playAll && nextUp < 0) {
+		vidPlaylist = [];
+		for(i=0; i<vidFile.length; i++) {
+			vidPlaylist.push(i);
+		}
+	}
+	
+	if(vidPlaylist.length > 0) {
+		nextUp = vidPlaylist.shift();
+		
+		UpdateStatus("n" + nextUp);
+		
+		myTitle.innerHTML = "" + vidTitle[nextUp];
+		
+		myVideo.src = vidFile[nextUp];
+		myVideo.load();
+		
+	} else {
+		clearTimeout(loadNextTimer);
+    	loadNextTimer = setTimeout("LoadNextUp()", 1000);
+		
+		
+	}
+	
+	// 
+	
+	UpdateListDisplay();
+}
+
+
+// Update our onscreen text for the upcoming videos
+function UpdateListDisplay() {
+	if(vidPlaylist.length > 0) {
+		vidList.innerHTML = "Up Next:<br><br>";
+		for(var i=0; i<vidPlaylist.length; i++) {
+			vidList.innerHTML += vidTitle[vidPlaylist[i]] + "<br><br>";
+		}
+	} else {
+		vidList.innerHTML = "Choose the next video now!";
+	}
+
+}
+
+// Wait for keypresses to add videos to playlist by index number
+document.addEventListener('keypress', (event) => {
+  const keyName = event.key;
+
+  //alert('keypress event\n\n' + 'key: ' + keyName);
+  //alert(isNaN(keyName));
+  
+  // add movies by index number
+  if(!isNaN(keyName)) {
+  	if (keyName < vidFile.length) {
+  		UpdateStatus("k" + keyName);
+  		vidPlaylist.push(keyName);
+  	}
+  }
+  
+  // special cases
+  // r - reload page
+  if(keyName == "r") { location.href = location.href; }
+  // s - skip to next video
+  if(keyName == "s") {
+  	clearTimeout(loadNextTimer);
+  	LoadNextUp();
+  }
+  
+  UpdateListDisplay();
+  
+});
+
+// add onscreen debugging messages
+function UpdateStatus(msg) {
+	if(debug) {
+		debugMsgs.innerHTML += ' ' + msg;
+	}
+}
+
+</script>
+
+</body> 
+</html>
+
+
