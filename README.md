@@ -1,7 +1,6 @@
 # MediaKiosk
 Play and queue digital videos in a media jukebox, art installation, etc.
 
-
 Written for the Multimedia Jukebox with Luke J. and Peter K. at MHC 2018
 
 Designed to listen for keystrokes and play or queue up MP4 video files
