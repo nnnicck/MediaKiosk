@@ -65,6 +65,7 @@ display:none;
 video {
 /*filter: grayscale(100%);*/
 margin-bottom:10px;
+object-fit:contain;
 }
 
 #debugMsgs {
@@ -93,7 +94,7 @@ color:#c00;
 var debug = 0; // send debugging messages to the debugMsgs span?
 
 // how many seconds should we delay between videos?
-var delayBetweenVids = 0;
+var delayBetweenVids = 1;
 
 // set padding and video size for display
 var padding = 0;
@@ -140,6 +141,8 @@ var nextUp = -1;
 
 debugMsgs.innerHTML = '';
 
+
+
 // When a video loads, start playing and also set a timer to play the next one
 myVideo.oncanplay = function() {
     //alert("Can start playing " + vidFile[nextUp]);
@@ -149,7 +152,15 @@ myVideo.oncanplay = function() {
     clearTimeout(loadNextTimer);
     loadNextTimer = setTimeout("LoadNextUp()", timeDelay);
     
+    myVideo.style.opacity = 1;
+    
     myVideo.play();
+};
+
+// after playing a video, hide it
+myVideo.onended = function(){
+	myVideo.style.opacity = 0;
+	
 };
 
 
@@ -178,8 +189,10 @@ function ConfigureMedia() {
 	
 	if(padding == 0) {
 		document.getElementById("videoPlayer").style.width = window.innerWidth + "px";
+		document.getElementById("videoPlayer").style.height = window.innerHeight + "px";
 		//document.getElementById("video").style.width = window.innerWidth + "px";
 		myVideo.style.width = window.innerWidth + "px";
+		myVideo.style.height = window.innerHeight + "px";
 		
 		fontSize = 1; // at zero, css fail for no good reason
 	}
@@ -279,10 +292,9 @@ document.addEventListener('keypress', (event) => {
   	clearTimeout(loadNextTimer);
   	LoadNextUp();
   }
+  
   // space - pause or play
   if(keyName == " ") {
-  
-  
 	if (myVideo.paused) {
 		// restart the timer for the next video
     	var timeDelay = (delayBetweenVids + myVideo.duration - myVideo.currentTime) * 1000;
@@ -296,9 +308,6 @@ document.addEventListener('keypress', (event) => {
 		// and pause the video
 		myVideo.pause();  
 	}
-       
-
-  	
   }
   
   UpdateListDisplay();
