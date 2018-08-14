@@ -21,11 +21,7 @@ Don't forget to adjust Chrome's new video autoplay policy:
 chrome://flags/#autoplay-policy - set to "No user gesture is required"
 
 
-This version plays through in random order continuously
-
-
-
-
+This version plays through in  order continuously
 
 
 Enjoy! -Nick
@@ -34,7 +30,7 @@ Enjoy! -Nick
 
 <style>
 body {
-background-color:#000; /* infuriating hack - #000 causes weird offset in full screen */
+background-color:#000;
 color:#ccc;
 overflow:hidden;
 font-family:Helvetica;
@@ -282,6 +278,27 @@ document.addEventListener('keypress', (event) => {
   if(keyName == "s") {
   	clearTimeout(loadNextTimer);
   	LoadNextUp();
+  }
+  // space - pause or play
+  if(keyName == " ") {
+  
+  
+	if (myVideo.paused) {
+		// restart the timer for the next video
+    	var timeDelay = (delayBetweenVids + myVideo.duration - myVideo.currentTime) * 1000;
+    	clearTimeout(loadNextTimer);
+    	loadNextTimer = setTimeout("LoadNextUp()", timeDelay);
+    	// and play the video
+		myVideo.play();
+	} else {
+		// stop the timer for the next video
+		clearTimeout(loadNextTimer);
+		// and pause the video
+		myVideo.pause();  
+	}
+       
+
+  	
   }
   
   UpdateListDisplay();
