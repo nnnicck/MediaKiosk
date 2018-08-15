@@ -90,15 +90,17 @@ color:#c00;
 var debug = 0; // send debugging messages to the debugMsgs span?
 
 // how many seconds should we delay between videos?
-var delayBetweenVids = 1;
+var delayBetweenVids = 3;
 
 // set padding and video size for display
-var padding = 0;
+var padding = 20;
 var videoSize = 960; 
-var fontSize = 1;
-var loopVideo = 1;
-var playAll = 1;
+var fontSize = 20;
+var loopVideo = 0;
+var playAll = 0;
+var showOnscreenList = 1;
 // can be overridden in the browser with ?w=1080&p=50&f=40 or the like
+
 
 // enter your video files here - relative links
 var vidFile = [
@@ -124,8 +126,8 @@ var vidTitle = [
 	"Pie Eating Contest",
 	"Pigeon Copter"];
 	
-// start playing videos 0, 1, 5, 4, and 8 when the page loads
-var vidPlaylist = [8, 6]; // is overwritten when playAll = 1;
+// start playing videos when the page loads
+var vidPlaylist = [2, 3, 5]; // is overwritten when playAll = 1;
 
 // misc variables
 var myVideo = document.getElementById("video"); 
@@ -136,7 +138,6 @@ var loadNextTimer = 0;
 var nextUp = -1;
 
 debugMsgs.innerHTML = '';
-
 
 
 // When a video loads, start playing and also set a timer to play the next one
@@ -156,7 +157,7 @@ myVideo.oncanplay = function() {
 // after playing a video, hide it
 myVideo.onended = function(){
 	myVideo.style.opacity = 0;
-	
+	myTitle.innerHTML = "";
 };
 
 
@@ -258,9 +259,14 @@ function UpdateListDisplay() {
 			vidList.innerHTML += vidTitle[vidPlaylist[i]] + "<br><br>";
 		}
 	} else {
-		vidList.innerHTML = "Choose the next video now!";
+		vidList.innerHTML = "Choose the next video now!<br><br>";
+		
+		if(showOnscreenList) {
+			for(var i=0; i<vidTitle.length; i++) {
+				vidList.innerHTML += i + " = " + vidTitle[i] + "<br><br>";
+			}
+		}
 	}
-
 }
 
 // Wait for keypresses to add videos to playlist by index number
@@ -271,7 +277,7 @@ document.addEventListener('keypress', (event) => {
   //alert(isNaN(keyName));
   
   // add movies by index number
-  if(!isNaN(keyName)) {
+  if(!isNaN(keyName) && keyName != " ") {
   	if (keyName < vidFile.length) {
   		UpdateStatus("k" + keyName);
   		vidPlaylist.push(keyName);
@@ -289,18 +295,20 @@ document.addEventListener('keypress', (event) => {
   
   // space - pause or play
   if(keyName == " ") {
-	if (myVideo.paused) {
-		// restart the timer for the next video
-    	var timeDelay = (delayBetweenVids + myVideo.duration - myVideo.currentTime) * 1000;
-    	clearTimeout(loadNextTimer);
-    	loadNextTimer = setTimeout("LoadNextUp()", timeDelay);
-    	// and play the video
-		myVideo.play();
-	} else {
-		// stop the timer for the next video
-		clearTimeout(loadNextTimer);
-		// and pause the video
-		myVideo.pause();  
+  	if(myVideo.style.opacity > 0) { // don't play or pause between videos
+		if (myVideo.paused) {
+			// restart the timer for the next video
+			var timeDelay = (delayBetweenVids + myVideo.duration - myVideo.currentTime) * 1000;
+			clearTimeout(loadNextTimer);
+			loadNextTimer = setTimeout("LoadNextUp()", timeDelay);
+			// and play the video
+			myVideo.play();
+		} else {
+			// stop the timer for the next video
+			clearTimeout(loadNextTimer);
+			// and pause the video
+			myVideo.pause();  
+		}
 	}
   }
   
@@ -319,5 +327,3 @@ function UpdateStatus(msg) {
 
 </body> 
 </html>
-
-
