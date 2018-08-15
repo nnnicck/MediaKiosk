@@ -10,7 +10,7 @@ custom buttons or other controls
 
 Type 0-9 to queue up videos from the vidFile and vidTitle arrays
 
-Special keys: r=reload, s=skip to next
+Special keys: r=reload, s=skip to next, space to pause/play
 
 Use query string to adjust video size, padding, font size on the fly:
 media-kiosk.html?w=960&p=40&f=20
