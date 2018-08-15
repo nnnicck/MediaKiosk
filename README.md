@@ -22,6 +22,10 @@ with query string: media-kiosk.html?p=0&a=1&l=1
 Public domain video samples courtesy of the Prelinger Archives: 
 https://archive.org/details/Televisi1960
 
+Use open-chrome-full-screen.scp to launch the MediaKiosk in full screen,
+export as an app and add to your login items to do this on start up.
+See https://gist.github.com/dankeezer/9696910 for more background and tips.
+
 Don't forget to adjust Chrome's new video autoplay policy:
 chrome://flags/#autoplay-policy - set to "No user gesture is required"
 
