@@ -169,7 +169,7 @@ function ConfigureMedia() {
 
 	// get optional video size and padding values from the query string
 	var q = location.search;
-	var res = q.match(/[wpfd]\=(\d+)/gi);
+	var res = q.match(/[wpfdal]\=(\d+)/gi);
 	if(res) {
 		for(var i=0; i<res.length; i++) {
 			var value = parseInt(res[i].substr(2)); // alert("'" + value + "'");
@@ -177,6 +177,8 @@ function ConfigureMedia() {
 			if(res[i].indexOf("p") == 0) { padding = value; }
 			if(res[i].indexOf("f") == 0) { fontSize = value; }
 			if(res[i].indexOf("d") == 0) { debug = value; }
+			if(res[i].indexOf("a") == 0) { playAll = value; }
+			if(res[i].indexOf("l") == 0) { loopVideo = value; }
 		}
 	}
 
@@ -195,7 +197,7 @@ function ConfigureMedia() {
 		myVideo.style.width = window.innerWidth + "px";
 		myVideo.style.height = window.innerHeight + "px";
 		
-		fontSize = 1; // at zero, css fail for no good reason
+		fontSize = 0;
 	}
 	
 	// hide vidList if we're in 0 font mode
